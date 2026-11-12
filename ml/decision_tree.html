@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>決策樹 (Decision Tree)</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Mermaid CDN -->
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="container" style="padding-top: 0; padding-bottom: 0;">
+            <a href="../index.html">🏠 回首頁</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">決策樹 (Decision Tree)</h1>
+            <p>解構最強大的白箱模型！從 20 個問題猜動物，深入探討 Information Gain 的數學奧秘。</p>
+        </div>
+
+        <div class="detailed-content">
+            
+            <h2>一、 起｜生活化比喻 (概念引入)</h2>
+            <blockquote>
+                <strong>🤔 終極密碼與猜動物遊戲：</strong><br>
+                想像你正在玩「20 個問題猜動物」。如果你的第一個問題是「牠是不是有兩根毛？」，這就是個爛問題，因為只能淘汰極少數動物。聰明的人會先問「牠是不是哺乳類？」或「牠生活在水裡嗎？」，這些好問題能瞬間將潛在答案砍掉一半。<strong>決策樹 (Decision Tree) 就是一個由演算法自動找出「好問題」並不斷往下追問，直到分類明確的機器學習模型。</strong>
+            </blockquote>
+
+            <h2>二、 承｜教科書級文字詳解 (Why, What, How)</h2>
+            <p>首先，我們必須探究<strong>「為什麼 (Why)」</strong>決策樹在機器學習界地位如此崇高？與類神經網路 (Neural Networks) 這種人類無法理解內部權重運作的「黑箱模型 (Black-box Model)」不同，決策樹是標準的「白箱模型 (White-box Model)」。它的判斷邏輯完全符合人類直覺，可以直接印成一堆 <code>if-else</code> 規則。在醫療診斷、金融貸款審批等必須向人類解釋「為何做出此判斷 (Explainability)」的高風險領域，決策樹及其延伸演算法 (如 Random Forest) 至今無可取代。</p>
+            
+            <p>接著定義<strong>「是什麼 (What)」</strong>。決策樹顧名思義是一棵倒長的樹狀結構。它由三種節點組成：<strong>根節點 (Root Node)</strong> 包含了所有的訓練資料與最重要的第一個問題；<strong>內部節點 (Internal Nodes)</strong> 代表針對某個特定屬性 (Feature) 進行測試或切割；<strong>葉節點 (Leaf Nodes)</strong> 則代表最終的分類結果或回歸預測值。當新的測試資料進來時，只需沿著樹狀分支一路回答 Yes/No，最終落入的葉節點就是模型給出的答案。</p>
+
+            <p>核心精華在於<strong>「如何運作 (How)」</strong>，特別是如何挑選出剛才說的「好問題」。這依賴於一個源自資訊理論的概念：<strong>亂度 (Entropy)</strong>。Entropy 用來衡量一堆資料的混亂程度，當資料裡一半是狗、一半是貓時，亂度最高 (Entropy=1)；當資料裡全都是貓時，亂度最低 (Entropy=0)。<br>
+            決策樹 (如 ID3 演算法) 的核心數學邏輯叫做 <strong>資訊獲利 (Information Gain, IG)</strong>。它的推導公式是：<code>IG = (切割前的總 Entropy) - (依照屬性 A 切割後的加權平均 Entropy)</code>。演算法會窮舉所有的屬性，找出那個「能讓亂度下降最多 (即 Information Gain 最大)」的屬性，作為當前節點的切割基準。不斷遞迴這個過程，直到葉節點的資料純度達到 100%，或者達到了預設的樹深限制為止。</p>
+
+            <h2>三、 轉｜視覺化強制要求 (圖解與表格)</h2>
+            
+            <h3>決策樹判斷流程圖 (打網球預測)</h3>
+            <div class="mermaid">
+            graph TD
+                Root{"天氣狀況 (Outlook)?"} -->|晴天 (Sunny)| Node1{"濕度 (Humidity)?"}
+                Root -->|陰天 (Overcast)| Leaf1["✅ 去打球 (Play)"]
+                Root -->|雨天 (Rain)| Node2{"風速 (Wind)?"}
+                
+                Node1 -->|高 (High)| Leaf2["❌ 不打球 (No Play)"]
+                Node1 -->|正常 (Normal)| Leaf3["✅ 去打球 (Play)"]
+                
+                Node2 -->|強 (Strong)| Leaf4["❌ 不打球 (No Play)"]
+                Node2 -->|弱 (Weak)| Leaf5["✅ 去打球 (Play)"]
+                
+                style Root fill:#bfdbfe,stroke:#3b82f6,stroke-width:2px
+                style Node1 fill:#bfdbfe,stroke:#3b82f6,stroke-width:2px
+                style Node2 fill:#bfdbfe,stroke:#3b82f6,stroke-width:2px
+                style Leaf1 fill:#bbf7d0,stroke:#22c55e,stroke-width:2px
+                style Leaf3 fill:#bbf7d0,stroke:#22c55e,stroke-width:2px
+                style Leaf5 fill:#bbf7d0,stroke:#22c55e,stroke-width:2px
+                style Leaf2 fill:#fecaca,stroke:#ef4444,stroke-width:2px
+                style Leaf4 fill:#fecaca,stroke:#ef4444,stroke-width:2px
+            </div>
+
+            <h3>經典決策樹演算法切割指標對照表</h3>
+            <table class="styled-table">
+                <thead>
+                    <tr><th>演算法名稱</th><th>核心切割指標 (Splitting Criterion)</th><th>數學邏輯與改良原因推導</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>ID3</strong></td>
+                        <td><strong>Information Gain<br>(資訊獲利)</strong></td>
+                        <td>使用 Entropy 計算。缺點是會「偏袒分支極多的屬性」。例如若用「身分證字號」切割，每個葉節點只會有一個人，純度瞬間達最高，IG 最大，但這棵樹完全沒有預測能力 (Overfitting)。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>C4.5</strong></td>
+                        <td><strong>Gain Ratio<br>(獲利比率)</strong></td>
+                        <td>針對 ID3 的缺陷進行改良。將 IG 除以 <code>Split Information (切割資訊)</code> 進行懲罰。若某屬性分支過多，分母變大，整體 Gain Ratio 反而會下降，有效解決偏袒問題。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CART</strong></td>
+                        <td><strong>Gini Impurity<br>(吉尼不純度)</strong></td>
+                        <td>不使用對數 (log) 計算，運算速度更快。Gini 衡量的是「隨機抽出兩筆資料，其類別標籤不一致的機率」。Gini 值越小代表節點越純。CART 強制只生出「二元樹 (Binary Tree)」。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>四、 合｜重點標示與提點</h2>
+            <p>決策樹最大的致命傷在於 <strong>過度配適 (Overfitting)</strong>。如果放任樹無限生長，它會把訓練資料裡的雜訊也學進去（例如連衣服顏色都拿來判斷是否生病）。考試時務必掌握解決 Overfitting 的兩大手段：<strong>Pre-pruning (預先剪枝)</strong>：提早限制樹的深度或葉節點最小樣本數；<strong>Post-pruning (事後剪枝)</strong>：讓樹長完，再用驗證集 (Validation Set) 評估，把對預測無益的子樹剪掉合併為葉節點。此外，實務上幾乎都會改用集成學習的 <strong>Random Forest (隨機森林)</strong> 來降低模型變異數，這也是必考考點。</p>
+        
+        </div>
+
+        <section class="exam-section">
+            <h2 class="section-title">📝 互動式考古題 (Exam Practice)</h2>
+            
+            <details>
+                <summary>🎯 [成大資管 110] 給定一個二元分類問題，一個節點中有 10 筆資料（6 個正例，4 個負例）。請寫出該節點的 Entropy (亂度) 與 Gini Impurity (吉尼不純度) 的計算式。（無需算出最終小數，列出式子即可）</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. 基礎機率計算：</strong><br>
+                    - 總資料數 $N = 10$<br>
+                    - 正例機率 $p_1 = 6 / 10 = 0.6$<br>
+                    - 負例機率 $p_2 = 4 / 10 = 0.4$<br><br>
+                    
+                    <strong>2. Entropy (亂度) 的計算式推導：</strong><br>
+                    Entropy 的數學定義為：$E = - \sum (p_i \times \log_2 p_i)$<br>
+                    將機率代入：<br>
+                    <code>Entropy = - (0.6 &times; log<sub>2</sub> 0.6 + 0.4 &times; log<sub>2</sub> 0.4)</code><br><br>
+                    
+                    <strong>3. Gini Impurity (吉尼不純度) 的計算式推導：</strong><br>
+                    Gini 的數學定義為：$Gini = 1 - \sum (p_i^2)$<br>
+                    將機率代入：<br>
+                    <code>Gini = 1 - (0.6<sup>2</sup> + 0.4<sup>2</sup>)</code><br>
+                    <code>= 1 - (0.36 + 0.16) = 1 - 0.52 = 0.48</code>
+                </div>
+            </details>
+            <details>
+                <summary>🎯 [交大資管 111] 為什麼 ID3 演算法使用的 Information Gain (資訊獲利) 會偏袒（Favor）擁有大量相異值的屬性（例如：身分證字號、學號）？後續的 C4.5 演算法是如何透過數學公式解決這個問題的？</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. 為什麼會偏袒大量相異值的屬性？</strong><br>
+                    Information Gain 的計算公式是：<code>IG = (切割前的 Entropy) - (依照該屬性切割後各分支的加權 Entropy 總和)</code>。<br>
+                    假設我們使用「身分證字號」這個屬性來切割資料。因為每個人的身分證字號都是獨一無二的，所以一筆資料就會被分到一個獨立的子節點。這導致每一個子節點裡面都只有 1 筆資料！<br>
+                    一個節點只有 1 筆資料，代表它 100% 屬於某個類別，其 Entropy = 0。<br>
+                    當所有切割後子節點的 Entropy 都是 0 時，<code>IG = 切割前 Entropy - 0</code>。這意味著該屬性獲得了「理論上的最大資訊獲利」。因此，ID3 會誤以為這是一個極佳的切割點，但實際上這棵樹已經死背了資料 (Overfitting)，完全喪失了對新資料的泛化預測能力。<br><br>
+
+                    <strong>2. C4.5 演算法的改良推導 (Gain Ratio)：</strong><br>
+                    C4.5 演算法為了解決這個嚴重的偏差，提出了 <strong>Gain Ratio (獲利比率)</strong> 的概念，其公式為：<br>
+                    <code>Gain Ratio = Information Gain / Split Information (切割資訊)</code><br>
+                    其中，<code>Split Information</code> 的計算方式類似 Entropy，只是它是針對「該屬性的分支分佈狀況」來計算，而不是針對類別標籤。<br>
+                    <code>Split Info = - &sum; (|S_i| / |S|) &times; log2 (|S_i| / |S|)</code><br>
+                    <strong>推導機制：</strong>當一個屬性（如身分證字號）產生了極大量的細小分支時，雖然它的 IG 很大，但它產生的 <code>Split Information</code> 也會隨之變得極度巨大。<br>
+                    將極大的 IG 除以極大的 Split Information，相當於對這個屬性施加了嚴厲的「懲罰權重」。最終算出來的 <code>Gain Ratio</code> 反而會變得非常低，從而阻止了演算法選擇這種毫無泛化意義的破碎屬性作為節點。
+                </div>
+            </details>
+        
+        </section>
+    </div>
+</body>
+</html>

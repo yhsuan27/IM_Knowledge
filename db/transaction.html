@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交易管理與 ACID (Transaction Management)</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Mermaid CDN -->
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="container" style="padding-top: 0; padding-bottom: 0;">
+            <a href="../index.html">🏠 回首頁</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">交易管理與 ACID (Transaction Management)</h1>
+            <p>掌握資料庫的心臟：並行控制、錯誤復原與隔離層級的底層邏輯。</p>
+        </div>
+
+        <div class="detailed-content">
+            
+            <h2>一、 起｜生活化比喻 (概念引入)</h2>
+            <blockquote>
+                <strong>🏦 跨年夜的銀行轉帳大混戰：</strong><br>
+                想像跨年夜時，你透過網銀轉帳 10,000 元給朋友。系統先從你的帳戶扣除一萬，正準備將錢加進朋友帳戶時，銀行伺服器突然被倒數煙火的流量給擠到當機了！如果沒有機制保護，這 10,000 元就會憑空消失。<strong>交易管理 (Transaction) 就是資料庫的「時光機與保鑣」</strong>，它保證這種跨步驟的動作「要嘛全部成功，要嘛時光倒流回轉帳前的原狀」，絕不允許錢卡在半空中的薛丁格狀態。
+            </blockquote>
+
+            <h2>二、 承｜教科書級文字詳解 (Why, What, How)</h2>
+            <p>在多使用者、高併發的現代應用中，我們必須探討<strong>「為什麼 (Why)」</strong>需要交易管理。如果放任多個 SQL 指令隨意穿插執行，或者容許硬體斷電在任何指令中間發生，資料庫將立刻面臨災難。這包含了兩種層面的崩潰：一是系統層面，當程式寫入到一半時系統崩潰，會留下破損、不完整的資料結構；二是邏輯層面，當數萬人同時讀寫同一筆商品庫存時，若缺乏並行控制 (Concurrency Control)，就會發生互相覆蓋資料的慘劇。因此，交易管理是維持資料庫性命交關的核心機制。</p>
+
+            <p>接著我們來定義<strong>「是什麼 (What)」</strong>。在資料庫系統中，交易 (Transaction) 被定義為「一組不可分割的邏輯工作單元」，它可能包含了一連串的 SELECT、UPDATE、INSERT 指令。為了讓這個工作單元具備剛才提到的防護力，學術界提出了著名的 <strong>ACID 四大特性</strong>：<br>
+            1. <strong>Atomicity (原子性)</strong>：這是「All or Nothing」的保證，交易內的指令要嘛全部完成 (Commit)，要嘛全部撤銷 (Abort/Rollback)。這通常仰賴 OS 與 DBMS 的 Log 系統來實現復原 (Recovery)。<br>
+            2. <strong>Consistency (一致性)</strong>：交易執行前後，資料庫必須從一個合法的一致狀態，轉移到另一個合法的一致狀態。例如：轉帳前後，兩個帳戶的總金額加總必須相等。<br>
+            3. <strong>Isolation (隔離性)</strong>：雖然系統同時有成千上萬個交易在並行處理，但對任何單一交易而言，它必須感覺自己是「獨佔」系統的。其他正在執行且尚未 Commit 的交易，其內部狀態對外不可見。<br>
+            4. <strong>Durability (持久性)</strong>：一旦交易成功 Commit，其對資料庫所做的變更將會永久保存在非揮發性儲存設備 (如硬碟) 中，即使下一秒伺服器爆炸斷電，資料也絕不遺失。</p>
+
+            <p>最後，我們來深究<strong>「如何發生 (How)」</strong>所謂的並行干擾問題，這是考研最愛考的重點。當隔離性 (Isolation) 沒有被嚴格遵守時，會產生三種經典異常：<strong>髒讀 (Dirty Read)</strong> 發生在交易 A 修改了資料但還沒 Commit，交易 B 卻跑來讀取了這個「未確認」的資料，如果交易 A 隨後 Rollback 了，交易 B 就等於讀到了一個從未真實存在過的幽靈數據。<strong>遺失更新 (Lost Update)</strong> 則是兩個交易同時讀取同一筆資料，並各自進行計算後寫回，後寫回的交易會直接覆蓋掉前一個交易的心血。而 <strong>幻讀 (Phantom Read)</strong> 則是交易 A 在進行範圍查詢時，交易 B 偷偷在該範圍內 INSERT 了一筆新資料，導致交易 A 再次查詢時，驚訝地發現多出了一筆「幻覺」般的紀錄。</p>
+
+            <h2>三、 轉｜視覺化強制要求 (圖解與表格)</h2>
+            
+            <h3>交易狀態轉換機 (State Transition Diagram)</h3>
+            <div class="mermaid">
+            stateDiagram-v2
+                [*] --> Active : Begin Transaction
+                Active --> Partially_Committed : 最後一道指令執行完畢
+                Active --> Failed : 硬體故障或邏輯錯誤
+                Partially_Committed --> Committed : 成功將 Log 與資料寫入硬碟
+                Partially_Committed --> Failed : 寫入硬碟時發生錯誤
+                Failed --> Aborted : 執行 Rollback 退回原狀態
+                Committed --> [*]
+                Aborted --> [*]
+            </div>
+
+            <h3>SQL ANSI 標準隔離層級與並行異常對照表</h3>
+            <table class="styled-table">
+                <thead>
+                    <tr><th>隔離層級 (Isolation Level)</th><th>鎖定機制原理</th><th>髒讀 (Dirty Read)</th><th>不可重複讀 (Non-repeatable Read)</th><th>幻讀 (Phantom Read)</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Read Uncommitted (未提交讀)</strong></td>
+                        <td>最低層級，讀取不加鎖，容許讀取未 Commit 的資料。</td>
+                        <td><strong style="background-color: #fca5a5; color: #7f1d1d;">會發生</strong></td>
+                        <td><strong style="background-color: #fca5a5; color: #7f1d1d;">會發生</strong></td>
+                        <td><strong style="background-color: #fca5a5; color: #7f1d1d;">會發生</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Read Committed (已提交讀)</strong></td>
+                        <td>讀取時只讀取已 Commit 的資料（多數 DB 預設值）。</td>
+                        <td><strong style="background-color: #86efac; color: #14532d;">已避免</strong></td>
+                        <td><strong style="background-color: #fca5a5; color: #7f1d1d;">會發生</strong></td>
+                        <td><strong style="background-color: #fca5a5; color: #7f1d1d;">會發生</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Repeatable Read (可重複讀)</strong></td>
+                        <td>讀取時對目標列加上 Shared Lock，直到交易結束。保證同一筆資料讀取一致。</td>
+                        <td><strong style="background-color: #86efac; color: #14532d;">已避免</strong></td>
+                        <td><strong style="background-color: #86efac; color: #14532d;">已避免</strong></td>
+                        <td><strong style="background-color: #fca5a5; color: #7f1d1d;">會發生</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Serializable (可循序化)</strong></td>
+                        <td>最高層級，使用 Range Lock 或表級鎖，效能極差但保證完全一致。</td>
+                        <td><strong style="background-color: #86efac; color: #14532d;">已避免</strong></td>
+                        <td><strong style="background-color: #86efac; color: #14532d;">已避免</strong></td>
+                        <td><strong style="background-color: #86efac; color: #14532d;">已避免</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>四、 合｜重點標示與提點</h2>
+            <p>在應付台政大的考題時，請務必把 <strong>Dirty Read</strong> 與 <strong>Lost Update</strong> 的「時序推導」練熟。考試常會給出 <code>T1</code> 與 <code>T2</code> 的交錯執行順序表 (Schedule)，要你判斷發生了什麼異常。記住：只要有讀取到 <code>Uncommitted Data</code> 就是髒讀；只要寫入順序導致其中一人的 <code>Write</code> 被默默抹除，就是遺失更新。答題時務必寫出「因為 T1 在 T2 提交前讀取了變數 X...」等完整因果推論。</p>
+        
+        </div>
+
+        <section class="exam-section">
+            <h2 class="section-title">📝 互動式考古題 (Exam Practice)</h2>
+            
+            <details>
+                <summary>🎯 [交大資管 111] 請詳細解釋 ACID 特性中的「原子性 (Atomicity)」與「持久性 (Durability)」分別依賴 DBMS 的哪個子系統來實現？若發生硬體斷電，系統如何復原？</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. 實現機制對應：</strong><br>
+                    - <strong>原子性 (Atomicity)</strong>：依賴資料庫的 <strong>復原管理子系統 (Recovery Management System)</strong>。它確保交易若中途失敗，能利用 Undo 機制將所有已經變更的暫存狀態全部消除，退回交易開始前的純淨狀態。<br>
+                    - <strong>持久性 (Durability)</strong>：同樣依賴 <strong>復原管理子系統</strong> 以及系統底層的 <strong>日誌系統 (Write-Ahead Logging, WAL)</strong>。它確保只要交易宣告 Commit，其對應的 Redo Log 必然已經安全寫入磁碟，永不遺失。<br><br>
+
+                    <strong>2. 硬體斷電的復原推導 (Crash Recovery)：</strong><br>
+                    當硬體斷電並重新開機啟動資料庫時，DBMS 會啟動復原程序，掃描磁碟上的 <strong>交易日誌 (Log File)</strong>。<br>
+                    - <strong>Phase 1: 分析 (Analysis)</strong>：系統會找出斷電那一刻，哪些交易已經有 <code>&lt;T, commit&gt;</code> 紀錄，哪些交易只有 <code>&lt;T, start&gt;</code> 卻沒有 commit 紀錄。<br>
+                    - <strong>Phase 2: Redo (重做)</strong>：為了滿足「持久性」，系統會將所有已經擁有 commit 紀錄的交易，依據 Log 重新執行一次寫入動作，確保這些已提交的變更確實回到資料頁 (Data Page) 上。<br>
+                    - <strong>Phase 3: Undo (撤銷)</strong>：為了滿足「原子性」，系統會將那些有 start 但沒有 commit 的「未完成交易」，進行反向還原，清除它們留在磁碟上的髒資料，維持資料的一致性。<br>
+                    透過這套完整的 Redo/Undo 推導，DBMS 得以在災難發生後捍衛 ACID 的神聖不可侵犯。
+                </div>
+            </details>
+            <details>
+                <summary>🎯 [台大資管 109] 試以情境推導說明，何謂「遺失更新 (Lost Update)」問題？並說明為何 Read Committed 隔離層級無法防止此問題發生？</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. 遺失更新 (Lost Update) 情境推導：</strong><br>
+                    假設演唱會門票系統中，某區域剩餘票數 <code>X = 100</code> 存於資料庫中。現在有兩個使用者 (交易 T1 與 T2) 同時要搶 1 張票。<br>
+                    - 時間點 t1：T1 讀取 X 的值，得到 100。<br>
+                    - 時間點 t2：T2 也同時讀取 X 的值，得到 100。<br>
+                    - 時間點 t3：T1 在自己的記憶體中計算 100 - 1 = 99，並將 <code>X = 99</code> 寫回資料庫。<br>
+                    - 時間點 t4：T2 在自己的記憶體中計算 100 - 1 = 99，並將 <code>X = 99</code> 寫回資料庫，隨後 T1 與 T2 皆 Commit。<br>
+                    <strong>結果：</strong> 兩個人都成功買到票，系統理應賣出 2 張，剩餘 98 張。但最終資料庫中 X 的值卻是 99。T1 的更新被 T2 盲目地覆蓋掉了，這就是標準的遺失更新。<br><br>
+
+                    <strong>2. 為何 Read Committed 無法防止？</strong><br>
+                    <code>Read Committed (已提交讀)</code> 的防護機制是：「交易只能讀取別人已經 Commit 的資料」。<br>
+                    在上述情境中，時間點 t1 與 t2，T1 和 T2 讀取的 <code>X=100</code> 確實是早已經 Commit 好的乾淨資料，並沒有讀取到任何人的髒資料。因此，這兩個讀取動作在 Read Committed 層級下是「完全合法」且被放行的。<br>
+                    遺失更新的本質在於「Read-Modify-Write」這三個動作之間被其他交易插隊，而非讀取髒資料。要解決此問題，必須將隔離層級提升至 <code>Repeatable Read</code> (在讀取時就加上鎖定，阻止別人寫入)，或者在 SQL 語法中使用 <code>SELECT ... FOR UPDATE</code> 實作悲觀鎖 (Pessimistic Locking)，才能徹底阻絕遺失更新。
+                </div>
+            </details>
+        
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>監督式與非監督式學習 (Supervised vs Unsupervised)</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Mermaid CDN -->
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="container" style="padding-top: 0; padding-bottom: 0;">
+            <a href="../index.html">🏠 回首頁</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">監督式與非監督式學習 (Supervised vs Unsupervised)</h1>
+            <p>掌握機器學習兩大派別：有沒有「標準答案 (Label)」決定了模型的終極命運。</p>
+        </div>
+
+        <div class="detailed-content">
+            
+            <h2>一、 起｜生活化比喻 (概念引入)</h2>
+            <blockquote>
+                <strong>👨‍🏫 準備期末考 vs 🕵️ 整理沒看過的古董：</strong><br>
+                <strong>監督式學習</strong>就像是你拿著一份擁有「標準解答」的歷屆考古題在苦讀。你做完一題，就對答案，錯了就修正自己大腦的神經網路，直到你學會了規律，這叫 <strong>訓練 (Training)</strong>。到了期末考，你拿到沒有答案的新考卷，運用學過的規律寫出答案，這叫 <strong>預測 (Prediction)</strong>。<br>
+                相反地，<strong>非監督式學習</strong>就像老闆交給你一大箱奇形怪狀的無名古董，沒有任何清單或解答。老闆只要求你：「觀察它們的外觀特徵，把長得像的分類放同一堆，然後把那些有特殊紋路的挑出來。」這叫 <strong>分群 (Clustering)</strong> 與 <strong>特徵萃取 (Feature Extraction)</strong>。
+            </blockquote>
+
+            <h2>二、 承｜教科書級文字詳解 (Why, What, How)</h2>
+            <p>在進入機器學習領域時，我們必須先釐清<strong>「為什麼 (Why)」</strong>要將演算法劃分為這兩大陣營。現實世界的資料狀態是這一切的根源。在多數情況下，資料庫裡囤積了海量的用戶日誌、點擊紀錄與商品屬性（這些稱為特徵，Features, 通常代號為 X）。但要人工為這些海量資料一一標上對應的「結果、標籤」（稱為 Labels, 通常代號為 Y，例如：這個腫瘤圖片是惡性還是良性）是極端昂貴、耗時且需要專業知識的。當你擁有財力與時間標註好 Y，你就可以動用強大的「監督式學習」來精準預測未來；當你只擁有大量的 X 卻沒有錢標註 Y 時，「非監督式學習」就是你挖掘資料價值的唯一武器。</p>
+            
+            <p>接著我們定義這兩者的<strong>「是什麼 (What)」</strong>與主要任務。<br>
+            <strong>監督式學習 (Supervised Learning)</strong> 的使命非常明確：它要找出一個數學映射函數 <code>f(X) = Y</code>。根據 Y 的型態，其主要任務被嚴格分為兩類：如果目標 Y 是連續數值（例如預測明天的股票價格或房價），這稱為 <strong>回歸 (Regression)</strong>；如果目標 Y 是離散的類別標籤（例如判定這封信是垃圾信還是正常信、是貓還是狗），這稱為 <strong>分類 (Classification)</strong>。<br>
+            <strong>非監督式學習 (Unsupervised Learning)</strong> 則完全沒有 Y，模型只能對著 X 發呆並尋找內在結構。它的主要任務也是兩大類：第一是將物以類聚，將相似度高的資料圈成一群一群，這稱為 <strong>分群 (Clustering)</strong>；第二是為了對抗高維度資料帶來的維度詛咒 (Curse of Dimensionality)，找出最具代表性的少數特徵來取代原本幾千個特徵，這稱為 <strong>降維 (Dimensionality Reduction)</strong>。</p>
+
+            <p>最後探討它們<strong>「如何被評估 (How to Evaluate)」</strong>，這是兩者實務應用上最大的分水嶺。監督式學習的評估非常直觀且客觀，因為我們有測試集 (Test Set) 裡面的「真實解答 (Ground Truth)」。預測出來的 Y' 與真實的 Y 一對比，立刻能算出準確率 (Accuracy)、精確率 (Precision)、F1-Score 或均方誤差 (MSE) 等客觀量化指標。然而，非監督式學習的評估通常是一場噩夢。因為沒有解答，演算法分出三群後，我們很難客觀地說「分得好不好」，只能依賴 Silhouette Score 等測量群內緊密度的數學指標，或是必須交由具備領域知識 (Domain Knowledge) 的人類專家去主觀判定分出來的群體是否具備商業意義。</p>
+
+            <h2>三、 轉｜視覺化強制要求 (圖解與表格)</h2>
+            
+            <h3>兩大學習派別架構對比表 (全面解析)</h3>
+            <table class="styled-table">
+                <thead>
+                    <tr><th>比較指標 (Metrics)</th><th>監督式學習 (Supervised Learning)</th><th>非監督式學習 (Unsupervised Learning)</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>資料需求狀態</strong></td>
+                        <td>特徵 (Features, X) <strong>＋ 標籤解答 (Labels, Y)</strong></td>
+                        <td>只有特徵 (Features, X)，沒有解答</td>
+                    </tr>
+                    <tr>
+                        <td><strong>模型終極目標</strong></td>
+                        <td>學會映射關係 <code>Y = f(X)</code>，以預測未來的未知資料。</td>
+                        <td>發掘資料隱藏的內在結構、關聯規則或壓縮維度。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>兩大核心任務</strong></td>
+                        <td>1. <strong>分類 (Classification)</strong>：預測離散類別<br>2. <strong>回歸 (Regression)</strong>：預測連續數值</td>
+                        <td>1. <strong>分群 (Clustering)</strong>：物以類聚<br>2. <strong>降維 (Dimensionality Reduction)</strong>：提取主成分</td>
+                    </tr>
+                    <tr>
+                        <td><strong>代表性演算法</strong></td>
+                        <td>- 決策樹 (Decision Tree)<br>- 支援向量機 (SVM)<br>- 邏輯斯迴歸 (Logistic Regression)<br>- 隨機森林 (Random Forest)</td>
+                        <td>- K-Means 分群<br>- 階層式分群 (Hierarchical)<br>- 主成分分析 (PCA) [降維]<br>- 關聯規則 (Apriori, 購物籃分析)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>模型評估難易度</strong></td>
+                        <td><strong>客觀易量化。</strong><br>依賴 Confusion Matrix, Accuracy, F1-Score, RMSE 等絕對指標。</td>
+                        <td><strong>主觀且難以驗證。</strong><br>依賴群內/群間距離指標，最終仍需專家進行解釋與定性判定。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>現實痛點與挑戰</strong></td>
+                        <td>極高昂的人工標註成本 (Data Labeling Cost)，以及模型容易 Overfitting 背答案。</td>
+                        <td>結果無法控制且無法事先定義，容易算出毫無商業邏輯與意義的群體。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>四、 合｜重點標示與提點</h2>
+            <p>在考試中，遇到要求你對演算法進行歸類的題目時，請特別注意兩個極易被考官拿來當陷阱的演算法：<br>
+            第一是 <strong>邏輯斯迴歸 (Logistic Regression)</strong>。雖然它的名字有「迴歸」兩個字，但它骨子裡是一個 <strong>監督式學習的分類 (Classification) 模型</strong>，專門用 Sigmoid 函數輸出機率來處理二元分類問題 (如：是否生病)，千萬別被名字騙了填到回歸題去。<br>
+            第二是 <strong>主成分分析 (PCA)</strong>。這是一個非常經典的 <strong>非監督式學習降維技術</strong>。它在沒有任何標籤的幫助下，純粹透過計算共變異數矩陣 (Covariance Matrix) 的特徵值與特徵向量，強行找出資料中變異最大的新投影軸，是考卷上最愛考的非監督式數學題。</p>
+        
+        </div>
+
+        <section class="exam-section">
+            <h2 class="section-title">📝 互動式考古題 (Exam Practice)</h2>
+            
+            <details>
+                <summary>🎯 [台大資管 111] 機器學習中，何謂「分類 (Classification)」與「回歸 (Regression)」？請各舉一個商業實務場景，並說明它們同屬於哪一種學習方式？</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. 共同的所屬學習方式：</strong><br>
+                    兩者皆屬於 <strong>監督式學習 (Supervised Learning)</strong>。因為這兩項任務都必須在訓練階段，提供附帶有明確「歷史解答/標籤 (Labels)」的資料集給模型學習特徵映射關係。<br><br>
+
+                    <strong>2. 分類 (Classification) 的推導與實務場景：</strong><br>
+                    - <strong>定義推導</strong>：分類任務是指模型預測出的目標變數 <code>Y</code> 屬於 <strong>離散的類別型態 (Discrete Categorical Data)</strong>。模型輸出的結果是一組有限的集合（例如 {是, 否}，或 {貓, 狗, 鳥}）。<br>
+                    - <strong>商業實務場景</strong>：<strong>銀行信用卡盜刷偵測系統</strong>。銀行輸入使用者的消費金額、時間、地點特徵，模型預測這筆交易的類別標籤為 <code>{正常交易, 盜刷異常}</code> 二元分類。又如<strong>電子郵件垃圾信攔截</strong>（預測類別為 {Spam, Not Spam}）。<br><br>
+
+                    <strong>3. 回歸 (Regression) 的推導與實務場景：</strong><br>
+                    - <strong>定義推導</strong>：回歸任務是指模型預測出的目標變數 <code>Y</code> 屬於 <strong>連續的實數型態 (Continuous Numerical Data)</strong>。模型輸出的結果是一個無限可能的數值區間（例如 10.5, 100000, 3.14）。<br>
+                    - <strong>商業實務場景</strong>：<strong>房地產價格估算系統</strong>。房仲輸入房屋的坪數、屋齡、距離捷運站的公尺數特徵，模型直接預測出該棟房屋的成交價格 <code>(例如 15,350,000 元)</code>。這是一個典型的預測連續數值任務。
+                </div>
+            </details>
+            <details>
+                <summary>🎯 [政大資管 109] 何謂「半監督式學習 (Semi-supervised Learning)」？在現代 AI 開發中，為什麼這種學習方式越來越受到重視？</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. 半監督式學習的定義推導：</strong><br>
+                    半監督式學習是介於「監督式」與「非監督式」之間的一種折衷技術。<br>
+                    在這種場景下，我們的訓練資料集由 <strong>「極少數」擁有標籤解答的資料 (Labeled Data)</strong>，以及 <strong>「海量」沒有標籤的資料 (Unlabeled Data)</strong> 混合組成。演算法的運作邏輯通常是：先利用少量的有標籤資料訓練出一個初步的基礎模型；接著，用這個基礎模型去預測那堆海量的無標籤資料，產生「偽標籤 (Pseudo-labels)」；最後，再將這些高信賴度的偽標籤資料加入訓練集，反覆重新訓練以增強模型的泛化能力。<br><br>
+
+                    <strong>2. 為何在現代 AI 中越來越受重視的原因：</strong><br>
+                    核心原因在於 <strong>「標註成本的經濟學考量」與「大數據時代的特性」</strong>。<br>
+                    在現代的互聯網環境中，獲取「未標籤特徵資料 (X)」的成本幾乎為零（你可以輕易爬取幾百萬張網路圖片或醫療 X 光片）。但是，要請領域專家（如主治醫師）一張一張幫這些圖片標註出「良性/惡性腫瘤 (Y)」，成本極端高昂且耗時，完全無法跟上模型對資料量的胃口。<br>
+                    半監督式學習完美解決了這個痛點，工程師只需花錢請醫生標註 1,000 張圖，然後利用演算法去自動挖掘剩下 99,000 張免費無標籤圖片中隱藏的資料分佈特徵 (Manifold / Data Distribution)。這能以極低的標註成本，訓練出逼近甚至超越純監督式學習的準確度，成為目前自然語言處理 (NLP) 與計算機視覺 (CV) 領域突破瓶頸的關鍵策略。
+                </div>
+            </details>
+        
+        </section>
+    </div>
+</body>
+</html>

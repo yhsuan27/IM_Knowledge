@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>記憶體階層 (Memory Hierarchy)</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Mermaid CDN -->
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="container" style="padding-top: 0; padding-bottom: 0;">
+            <a href="../index.html">🏠 回首頁</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">記憶體階層 (Memory Hierarchy)</h1>
+            <p>打破范紐曼瓶頸的設計哲學：詳解 Locality 原理與 Cache, RAM 到 SSD 的性價比權衡。</p>
+        </div>
+
+        <div class="detailed-content">
+            
+            <h2>一、 起｜生活化比喻 (概念引入)</h2>
+            <blockquote>
+                <strong>📚 期末考前在書桌前的苦讀策略：</strong><br>
+                想像你正在準備期末考。你的「大腦」運轉極快，就像 CPU。你把正在背的單字本拿在手上（<strong>暫存器 Register，極快但容量極小</strong>）；桌面上攤開了幾本常用的參考書（<strong>快取 Cache，拿取方便但桌面空間有限</strong>）；房間裡的書架上放了這學期所有的課本（<strong>主記憶體 RAM，容量大但要站起來走去拿，較慢</strong>）；而那些以前買的小說和雜誌，則全部堆在學校圖書館的地下室（<strong>硬碟 HDD/SSD，容量海量但需要騎車去拿，超級慢</strong>）。把越常用、越緊急的資料放在離大腦越近的地方，這就是「記憶體階層」的極致生活體現。
+            </blockquote>
+
+            <h2>二、 承｜教科書級文字詳解 (Why, What, How)</h2>
+            <p>首先我們探究<strong>「為什麼 (Why)」</strong>計算機科學家不乾脆把所有的儲存設備都做成極速的記憶體？這源自於一個物理與經濟學的殘酷現實。在現代電腦架構（范紐曼架構）中，CPU 的運算速度每年都在呈指數級成長，但記憶體（DRAM）的存取速度成長卻極為緩慢，這導致了嚴重的「CPU-Memory 效能鴻溝 (Von Neumann Bottleneck)」。如果你想要跟 CPU 一樣快的記憶體（例如 SRAM），它的製造成本極端昂貴且體積龐大；如果你要便宜且容量海量的儲存（如硬碟），它的速度又慢如牛車。為了解決這個矛盾，工程師巧妙地利用了分層設計，在速度、容量與成本之間取得了完美的平衡。</p>
+            
+            <p>接著定義<strong>「是什麼 (What)」</strong>構成了這個階層。整個 Memory Hierarchy 呈現一個金字塔狀：位於塔頂的是 CPU 內部的 <strong>暫存器 (Registers)</strong>，速度與 CPU 時脈同步，但容量只有幾十 KB；往下是 <strong>快取記憶體 (Cache Memory)</strong>，通常由昂貴的 SRAM 構成，分為 L1, L2, L3，負責弭平 CPU 與主記憶體間的巨大速差；再往下是作業系統管理的核心 <strong>主記憶體 (Main Memory)</strong>，由 DRAM 構成，提供數 GB 到數十 GB 的工作空間；位於塔底的則是 <strong>次級儲存裝置 (Secondary Storage)</strong>，如 SSD 固態硬碟與 HDD 傳統磁碟，提供 TB 等級的非揮發性永久儲存空間。</p>
+
+            <p>最後深入探討這個金字塔<strong>「如何運作 (How)」</strong>。階層架構之所以能夠成功欺騙 CPU，讓 CPU 覺得「記憶體既擁有 Cache 的速度，又擁有 Hard Disk 的容量」，完全歸功於一個偉大的程式行為特性：<strong>「局部性原理 (Principle of Locality)」</strong>。這包含兩大面向：<strong>時間局部性 (Temporal Locality)</strong> 指出，如果一個資料剛剛被存取過，那麼它在不久的將來極高機率會被再次存取（例如迴圈 <code>for</code> 裡面的計數變數 <code>i</code>）；<strong>空間局部性 (Spatial Locality)</strong> 則指出，如果一個資料被存取了，那麼與它「相鄰」的資料在近期也很可能被存取（例如逐一讀取陣列 <code>Array[0]</code>, <code>Array[1]</code>）。透過這個原理，當 CPU 要抓資料時，如果 Cache 裡有（稱為 Cache Hit），就以極速讀取；如果沒有（稱為 Cache Miss），系統就把該資料及其周圍的一整塊 (Block) 資料從慢速記憶體一起搬上來。只要命中率 (Hit Rate) 夠高，整體平均存取時間就會趨近於最上層的極速記憶體。</p>
+
+            <h2>三、 轉｜視覺化強制要求 (圖解與表格)</h2>
+            
+            <h3>記憶體金字塔架構圖 (Memory Pyramid)</h3>
+            <div class="mermaid">
+            flowchart TD
+                A[Registers 暫存器<br>最靠近 CPU核心] -->|Cache Line / Block| B[Cache 快取記憶體<br>L1, L2, L3]
+                B -->|Page / Frame| C[Main Memory 主記憶體<br>DRAM]
+                C -->|Sector / Block| D[Secondary Storage 次級儲存裝置<br>SSD, HDD]
+                D -->|File| E[Tertiary Storage 第三級儲存<br>磁帶機、雲端冷儲存]
+                
+                style A fill:#fecaca,stroke:#b91c1c,stroke-width:2px
+                style B fill:#fed7aa,stroke:#c2410c,stroke-width:2px
+                style C fill:#fef08a,stroke:#a16207,stroke-width:2px
+                style D fill:#bbf7d0,stroke:#15803d,stroke-width:2px
+                style E fill:#e2e8f0,stroke:#475569,stroke-width:2px
+            </div>
+
+            <h3>記憶體階層核心屬性對照表</h3>
+            <table class="styled-table">
+                <thead>
+                    <tr><th>層級 (Level)</th><th>硬體材質與技術</th><th>資料轉移單位</th><th>存取速度 (數量級)</th><th>容量與成本特性</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Registers (暫存器)</strong></td>
+                        <td>Flip-Flop (正反器)<br>內建於 CPU 晶片</td>
+                        <td>Word (字組)<br>如 32-bit / 64-bit</td>
+                        <td>~ 1 ns (奈秒)<br>與 CPU 同步</td>
+                        <td>極小 (Byte - KB)。成本極其昂貴，由編譯器與組合語言管理。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cache (快取)</strong></td>
+                        <td>SRAM (靜態隨機存取記憶體)</td>
+                        <td>Block / Cache Line<br>(通常為 64 Bytes)</td>
+                        <td>~ 2 to 10 ns</td>
+                        <td>小 (MB 級別)。六電晶體架構，佔用晶片面積大，由硬體自動管理。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Main Memory (主記憶體)</strong></td>
+                        <td>DRAM (動態隨機存取記憶體)</td>
+                        <td>Page (分頁)<br>(通常為 4 KB)</td>
+                        <td>~ 50 to 100 ns</td>
+                        <td>中等 (GB 級別)。單一電容架構，需定期 Refresh 充電。由 OS 分頁管理。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Secondary Storage (硬碟)</strong></td>
+                        <td>NAND Flash (SSD)<br>磁性碟片 (HDD)</td>
+                        <td>Sector / Cluster / Block</td>
+                        <td>SSD: ~ 100 &mu;s<br>HDD: ~ 5 to 10 ms</td>
+                        <td>極大 (TB 級別)。非揮發性儲存，性價比極高，用於永久保存。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>四、 合｜重點標示與提點</h2>
+            <p>在資管所的計算機結構考題中，這個單元最愛考 <strong>「有效存取時間 (Effective Access Time, EAT) 的數學計算」</strong> 以及 <strong>「Locality 的定義辨析」</strong>。你必須將時間與空間局部性視為金律：看到「迴圈、重複呼叫的副程式」，就要聯想到 <strong>時間局部性 (Temporal)</strong>；看到「陣列尋訪、循序執行程式碼」，就要聯想到 <strong>空間局部性 (Spatial)</strong>。此外，請務必搞懂 SRAM 與 DRAM 的底層差異：SRAM 速度快、耗電低但面積大（用於 Cache）；DRAM 面積小、容量大但需要不斷刷新 (Refresh)，速度較慢（用於 Main Memory）。</p>
+        
+        </div>
+
+        <section class="exam-section">
+            <h2 class="section-title">📝 互動式考古題 (Exam Practice)</h2>
+            
+            <details>
+                <summary>🎯 [成大資管 109] 何謂「局部性原理 (Principle of Locality)」？請分別解釋時間局部性 (Temporal Locality) 與空間局部性 (Spatial Locality)，並各舉一個程式設計上的實務例子來佐證。</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. 局部性原理的定義：</strong><br>
+                    局部性原理是指程式在執行時，對於記憶體的存取並不是均勻隨機分佈的，而是會呈現出「高度集中在某些特定區域」的物理與邏輯特性。這個偉大的現象是整個記憶體階層（特別是 Cache 快取機制）能夠以小搏大、發揮極高命中率的理論基礎。<br><br>
+                    
+                    <strong>2. 兩大面向的深度解析與舉例：</strong><br>
+                    - <strong>時間局部性 (Temporal Locality)</strong>：<br>
+                    <strong>意義</strong>：如果一個記憶體位址在現在被存取了，那麼在「不久的將來」，這個相同的位址有極高的機率會「再次」被存取。<br>
+                    <strong>程式實例</strong>：最經典的例子就是 <code>for</code> 或 <code>while</code> 迴圈。在迴圈中做為計數器的變數 <code>i</code>，以及迴圈內反覆執行的同一段程式碼指令。這些變數與指令在短短的幾毫秒內會被重複讀寫成千上萬次，完美展現了時間局部性。<br><br>
+                    
+                    - <strong>空間局部性 (Spatial Locality)</strong>：<br>
+                    <strong>意義</strong>：如果一個記憶體位址被存取了，那麼在「不久的將來」，與該位址「相鄰或附近」的其他記憶體位置，也有極高的機率會被存取。基於此特性，硬體在發生 Cache Miss 時，不會只把單一 Byte 搬上來，而是會把一整塊相鄰的 Block (Cache Line) 整個搬進快取中。<br>
+                    <strong>程式實例</strong>：陣列 (Array) 的循序走訪。因為陣列在主記憶體中是配置連續的區塊，當程式讀取 <code>Array[0]</code> 之後，下一個動作極高機率是讀取相鄰的 <code>Array[1]</code> 和 <code>Array[2]</code>，這就是標準的空間局部性體現。
+                </div>
+            </details>
+            <details>
+                <summary>🎯 [政大資管 110] 假設一個兩層的記憶體系統。L1 Cache 的存取時間為 2ns，命中率 (Hit Ratio) 為 90%；Main Memory 的存取時間為 100ns。請推導計算其「有效存取時間 (Effective Access Time, EAT)」。若想將 EAT 降至 10ns 以下，在不升級硬體速度的前提下，Cache 命中率最低需要達到多少？</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. 基礎 EAT 公式推導與計算：</strong><br>
+                    有效存取時間的數學期望值公式為：<br>
+                    <code>EAT = (Hit Ratio &times; Cache Access Time) + (Miss Ratio &times; Miss Penalty)</code><br>
+                    在這裡，若發生 Cache Miss，CPU 必須去讀取 Main Memory，這稱為 Miss Penalty。實務上存取方式分為平行存取與循序存取，若無特別註明，一般基礎計算採用簡單期望值模型：<br>
+                    - Hit Ratio (H) = 0.9<br>
+                    - Miss Ratio (1 - H) = 0.1<br>
+                    - Cache Time (Tc) = 2ns<br>
+                    - Main Memory Time (Tm) = 100ns<br>
+                    在最常見的循序架構 (Sequential Access) 下，Miss Penalty 通常是 <code>Tc + Tm</code> (先找 Cache 發現沒有，再去找主記憶體)。若採同時平行存取 (Simultaneous Access)，Miss Penalty 就是 <code>Tm</code>。<br>
+                    我們採用最普及的平行存取公式簡化版計算：<br>
+                    <code>EAT = (0.9 &times; 2ns) + (0.1 &times; 100ns) = 1.8 + 10 = 11.8 ns</code>。<br><br>
+
+                    <strong>2. 目標 EAT 反推命中率：</strong><br>
+                    現在目標是 <code>EAT &le; 10 ns</code>。<br>
+                    我們設立不等式，將未知的命中率設為 <code>H</code>，Miss 率則為 <code>(1 - H)</code>：<br>
+                    <code>(H &times; 2) + ((1 - H) &times; 100) &le; 10</code><br>
+                    <code>2H + 100 - 100H &le; 10</code><br>
+                    <code>-98H &le; -90</code><br>
+                    <code>H &ge; 90 / 98</code><br>
+                    <code>H &ge; 0.9183...</code><br>
+                    <strong>結論：</strong> 若要在不更換任何硬體的情況下將整體平均速度壓進 10 奈秒以內，開發者或編譯器必須優化程式碼的局部性，將 Cache 命中率提升至約 <strong>91.84%</strong> 以上。這展現了軟體優化 (提升命中率) 對硬體效能的巨大槓桿作用。
+                </div>
+            </details>
+        
+        </section>
+    </div>
+</body>
+</html>

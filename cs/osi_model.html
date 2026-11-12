@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSI 網路七層架構 (OSI 7-Layer Model)</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Mermaid CDN -->
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="container" style="padding-top: 0; padding-bottom: 0;">
+            <a href="../index.html">🏠 回首頁</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">OSI 網路七層架構 (OSI 7-Layer Model)</h1>
+            <p>網路通訊的聖經！以最生活化的物流比喻，逐層拆解資料封裝與通訊協定。</p>
+        </div>
+
+        <div class="detailed-content">
+            
+            <h2>一、 起｜生活化比喻 (概念引入)</h2>
+            <blockquote>
+                <strong>📦 跨國網購退貨的史詩物流：</strong><br>
+                想像你買了一台美國的機器，壞了要退貨。<br>
+                第七層(應用層)：你寫了一封抱怨信。<br>
+                第六層(表達層)：你把信翻譯成英文，並用膠帶密封。<br>
+                第五層(會議層)：你打電話給對方確認他們準備好收貨了。<br>
+                第四層(傳輸層)：你給包裹貼上追蹤碼，確保包裹要是寄丟了對方會通知你重寄。<br>
+                第三層(網路層)：郵局決定包裹要搭哪班飛機飛過太平洋，並寫上雙方國家的地址(IP)。<br>
+                第二層(資料連結層)：在台灣境內，包裹被交給大榮貨運，蓋上內部轉運站的條碼(MAC)。<br>
+                第一層(實體層)：包裹被丟進貨車，輪胎在柏油路上摩擦，化為真實的物理移動。這就是 <strong>OSI 七層架構的封裝過程</strong>！
+            </blockquote>
+
+            <h2>二、 承｜教科書級文字詳解 (Why, What, How)</h2>
+            <p>在電腦網路發展的初期，我們面臨一個巨大的<strong>「為什麼 (Why)」</strong>需要標準架構的問題。1970年代，IBM 有自己的 SNA 網路，Apple 有 AppleTalk，不同廠商的電腦彼此之間語言不通、線材不相容，就像一個只說法語的村莊無法與只說日語的村莊交易一樣。為了解決這個通訊壁壘，國際標準化組織 (ISO) 在 1984 年發布了開放式系統互聯參考模型 (Open Systems Interconnection model, 簡稱 OSI)。它的終極目標是「模組化」，讓複雜的網路通訊被拆解成七個獨立的黑盒子，只要各廠商遵守每一層與上下層之間的標準介面，不管是哪家廠商製造的硬體或軟體，都能在全球網路上暢通無阻。</p>
+            
+            <p>接下來我們剖析這七個黑盒子<strong>「是什麼 (What)」</strong>。OSI 將網路分為三大模組。最上面的 <strong>Layer 5 ~ 7 (應用層、表達層、會議層)</strong> 屬於「主機層次」，它們只存在於發送端與接收端的電腦系統內部，處理的是與人類使用者直接互動的應用軟體、資料格式轉換、加密解密，以及應用程式間對話的建立與同步。中間的核心 <strong>Layer 4 (傳輸層)</strong> 負責「端對端 (End-to-End)」的可靠度控制與流量控制，確保不管底層網路多麼殘破，資料都能完整無缺地交到對的應用程式(Port)手上。最底下的 <strong>Layer 1 ~ 3 (實體層、資料連結層、網路層)</strong> 則是真正的「媒體層次」，負責把資料化為封包，決定它該走哪條路徑穿越茫茫網海，最後轉換成光訊號或電訊號在實體銅線與光纖中狂奔。</p>
+
+            <p>最精華的考點在於資料<strong>「如何傳遞 (How)」</strong>，這個過程被稱為 <strong>封裝 (Encapsulation)</strong> 與 <strong>解封裝 (Decapsulation)</strong>。當你在瀏覽器按下 Enter 鍵，資料會從第七層開始，像包洋蔥一樣，每往下經過一層，該層的協定就會在資料的最前面加上一個專屬的「標頭 (Header)」，以此來指示接收端的同一層該做什麼事。這個被包裝過的資料區塊，在學術上有個統一名稱叫做「協定資料單元 (PDU)」。在傳輸層，PDU 被稱為 <strong>Segment (區段)</strong>；到了網路層加上 IP 標頭後，被稱為 <strong>Packet (封包)</strong>；到了資料連結層加上 MAC 標頭與尾端檢查碼後，變成 <strong>Frame (訊框)</strong>；最後在實體層化為 0 與 1 的 <strong>Bit (位元)</strong>。當這個 Bit 流到達接收端後，會由下往上，一層層把洋蔥剝開驗證，最後還原出純粹的資料交給使用者的應用程式。</p>
+
+            <h2>三、 轉｜視覺化強制要求 (圖解與表格)</h2>
+            
+            <h3>OSI 封裝與解封裝流程圖 (Encapsulation Process)</h3>
+            <div class="mermaid">
+            sequenceDiagram
+                participant Sender as 發送端 (Sender)
+                participant Medium as 實體傳輸媒介 (Network)
+                participant Receiver as 接收端 (Receiver)
+                
+                Note over Sender: Layer 7 應用層 (Data)
+                Sender->>Sender: L4 傳輸層加入 TCP Header<br>形成 Segment (區段)
+                Sender->>Sender: L3 網路層加入 IP Header<br>形成 Packet (封包)
+                Sender->>Sender: L2 連結層加入 MAC Header & FCS<br>形成 Frame (訊框)
+                Sender->>Medium: L1 實體層化為 0/1 光電訊號<br>(Bits)
+                
+                Medium->>Receiver: 傳送 Bits
+                
+                Receiver->>Receiver: L2 檢查 MAC 與 FCS (去除標頭)
+                Receiver->>Receiver: L3 檢查 IP 位址是否正確 (去除標頭)
+                Receiver->>Receiver: L4 檢查 TCP Port 組合排序 (去除標頭)
+                Note over Receiver: Layer 7 應用程式收到純粹 Data
+            </div>
+
+            <h3>OSI 七層架構功能、PDU 與通訊協定全對照表</h3>
+            <table class="styled-table">
+                <thead>
+                    <tr><th>層級 (Layer)</th><th>階層名稱</th><th>核心任務推導與功能解析</th><th>資料單位 (PDU)</th><th>代表性協定與硬體設備</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Layer 7</strong></td>
+                        <td><strong>Application<br>(應用層)</strong></td>
+                        <td>提供使用者介面，處理最高階的網路應用請求，如收發信件、瀏覽網頁。這是最貼近人類的一層。</td>
+                        <td>Data (資料)</td>
+                        <td>HTTP, HTTPS, FTP, SMTP, DNS</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Layer 6</strong></td>
+                        <td><strong>Presentation<br>(表達層)</strong></td>
+                        <td>擔任「翻譯官」。負責資料格式轉換（如 ASCII）、資料壓縮，以及最重要的 <strong>加密與解密 (Encryption)</strong>。</td>
+                        <td>Data (資料)</td>
+                        <td>SSL / TLS, JPEG, ASCII, MPEG</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Layer 5</strong></td>
+                        <td><strong>Session<br>(會議層)</strong></td>
+                        <td>負責建立、維護與終止兩台主機應用程式間的通訊「對話 (Session)」。提供同步點 (Checkpoint) 確保斷線可續傳。</td>
+                        <td>Data (資料)</td>
+                        <td>RPC, NetBIOS, Sockets API</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Layer 4</strong></td>
+                        <td><strong>Transport<br>(傳輸層)</strong></td>
+                        <td>提供端對端 (End-to-End) 通訊。負責把大資料切割、排序，並透過 Port 號辨識應用程式。提供可靠傳輸與流量控制。</td>
+                        <td><strong>Segment (區段)</strong><br>或 Datagram</td>
+                        <td><strong>TCP</strong> (可靠), <strong>UDP</strong> (即時)<br>硬體：L4 Load Balancer</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Layer 3</strong></td>
+                        <td><strong>Network<br>(網路層)</strong></td>
+                        <td>負責邏輯定址 (Logical Addressing)。在龐大複雜的網際網路中計算出最佳路徑 (Routing)，將資料送到目的主機。</td>
+                        <td><strong>Packet (封包)</strong></td>
+                        <td>IP, ICMP, ARP, OSPF<br>硬體：<strong>Router (路由器)</strong>, L3 Switch</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Layer 2</strong></td>
+                        <td><strong>Data Link<br>(資料連結層)</strong></td>
+                        <td>負責在「相鄰的節點 (同一個區域網路 LAN)」之間傳送資料。具備實體定址 (MAC) 以及錯誤偵測 (FCS) 能力。</td>
+                        <td><strong>Frame (訊框)</strong></td>
+                        <td>Ethernet (乙太網), MAC, CSMA/CD<br>硬體：<strong>Switch (交換器)</strong>, Bridge</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Layer 1</strong></td>
+                        <td><strong>Physical<br>(實體層)</strong></td>
+                        <td>處理最底層的硬體介面、電壓、接腳規範。將資料轉換為能在銅線或光纖上跑的電壓變化或光束 (0 與 1)。</td>
+                        <td><strong>Bit (位元)</strong></td>
+                        <td>RJ-45, 光纖, 無線電波<br>硬體：Hub (集線器), Repeater (中繼器)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>四、 合｜重點標示與提點</h2>
+            <p>在研究所的網路概論考卷中，OSI 永遠是配分最重的一環。你必須能夠秒答硬體設備所屬的層級：<strong>集線器 (Hub) 屬於 L1</strong>，因為它只會無腦放大物理訊號廣播；<strong>交換器 (Switch) 屬於 L2</strong>，因為它看得懂 MAC 位址，能進行智慧型轉發；<strong>路由器 (Router) 屬於 L3</strong>，因為它負責解析 IP 進行跨網段的路由導航。此外，第四層 (L4) 的 <strong>TCP (高可靠度、有連線) 與 UDP (低延遲、無連線)</strong> 的比較，以及它們使用 <code>Port</code> 號碼來辨識應用程式的機制，也是每年必考的經典申論題。</p>
+        
+        </div>
+
+        <section class="exam-section">
+            <h2 class="section-title">📝 互動式考古題 (Exam Practice)</h2>
+            
+            <details>
+                <summary>🎯 [台大資管 108] 請問 Router (路由器) 與 Switch (交換器) 在 OSI 模型中分別運作在哪一層？它們的核心運作原理與處理的位址類型有何不同？請詳細推導。</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. Switch (交換器) 的運作機制：</strong><br>
+                    - <strong>所屬階層：Layer 2 資料連結層 (Data Link Layer)</strong>。<br>
+                    - <strong>位址與 PDU：</strong> 處理的資料單元為 <strong>Frame (訊框)</strong>，依賴的位址是寫死在網卡硬體上的 <strong>MAC Address (實體位址)</strong>。<br>
+                    - <strong>核心運作推導：</strong> Switch 的責任範圍僅限於「同一個區域網路 (LAN)」內部。當它收到一個 Frame 時，它會拆開 L2 的標頭，讀取「目的 MAC 位址」。接著它去查閱自己內部維護的 MAC Table（記錄哪個 MAC 連在哪個實體 Port 上），然後精準地將資料轉發到該特定 Port。它不關心資料要送往哪個國家，只關心這個房間裡誰是誰。因此，Switch 無法實現跨網段的通訊。<br><br>
+                    
+                    <strong>2. Router (路由器) 的運作機制：</strong><br>
+                    - <strong>所屬階層：Layer 3 網路層 (Network Layer)</strong>。<br>
+                    - <strong>位址與 PDU：</strong> 處理的資料單元為 <strong>Packet (封包)</strong>，依賴的位址是軟體配置的 <strong>IP Address (邏輯位址)</strong>。<br>
+                    - <strong>核心運作推導：</strong> Router 的使命是「連接不同的網路」。當資料需要跨越網段（例如從家裡送到 Google 伺服器），Switch 無能為力，只能把資料丟給 Default Gateway (通常就是 Router)。Router 收到 Frame 後，會剝掉 L2 標頭，露出 L3 的 IP 標頭，讀取「目的 IP 位址」。接著，它運用各種複雜的路由演算法 (如 OSPF, BGP) 查閱 Routing Table，決定這個封包下一步該往哪個介面送。決定後，Router 會重新為封包封裝上新的 L2 MAC 標頭，送往下一站。
+                </div>
+            </details>
+            <details>
+                <summary>🎯 [政大資管 110] 當我們談論傳輸層 (Transport Layer) 的通訊協定時，最常比較的就是 TCP 與 UDP。請從「連線機制」、「可靠度」與「適用情境」三個面向，詳細推導兩者的差異。</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    傳輸層 (Layer 4) 負責端對端的程序通訊，TCP 與 UDP 選擇了截然不同的設計哲學：<br><br>
+
+                    <strong>1. 連線機制 (Connection-oriented vs Connectionless)：</strong><br>
+                    - <strong>TCP (傳輸控制協定)</strong>：是「連線導向」的。在正式傳輸任何資料前，雙方必須先進行嚴格的 <strong>Three-way Handshake (三方交握)</strong>（SYN &rarr; SYN-ACK &rarr; ACK）來建立虛擬連線通道，確認彼此都在線且準備好。結束時也需要四次揮手來優雅地中斷連線。這帶來了極高的建立成本。<br>
+                    - <strong>UDP (使用者資料段協定)</strong>：是「非連線導向」的。它不管對方在不在線上、塞不塞車，有資料就直接朝目標 Port 射過去，不進行任何事前溝通。<br><br>
+
+                    <strong>2. 可靠度與控制機制 (Reliability & Control)：</strong><br>
+                    - <strong>TCP</strong>：提供絕對的「可靠傳輸」。它實作了 <strong>Sequence Number (序號)</strong> 來確保資料到達的順序不亂；實作了 <strong>ACK (確認回條)</strong> 與 <strong>Retransmission (逾時重傳)</strong> 來保證資料不遺失；還具備 <strong>Sliding Window (滑動視窗)</strong> 來進行流量與壅塞控制，避免把對方或網路塞爆。<br>
+                    - <strong>UDP</strong>：被稱為「盡力而為 (Best-effort)」的協定。它沒有序號、沒有確認回條、沒有重傳機制、更沒有流量控制。資料遺失了就遺失了，順序錯了也就錯了，完全交由上層應用程式自己想辦法。<br><br>
+
+                    <strong>3. 適用情境推導：</strong><br>
+                    - <strong>TCP 的適用情境</strong>：因為具備保證送達的特性，適用於「一點資料都不能錯」的應用。例如：網頁瀏覽 (HTTP/HTTPS)、檔案傳輸 (FTP)、電子郵件 (SMTP)。少了一個字元網頁可能就亂碼了。<br>
+                    - <strong>UDP 的適用情境</strong>：因為沒有重傳與交握的延遲負擔，速度極快，適用於「講求即時性，且能容忍少量遺失」的應用。例如：即時視訊會議 (掉幀沒關係，但不能延遲 3 秒才說話)、線上直播、網路遊戲即時同步、以及 DNS 查詢（因為請求很小，重查一次比建立 TCP 連線還快）。
+                </div>
+            </details>
+        
+        </section>
+    </div>
+</body>
+</html>
