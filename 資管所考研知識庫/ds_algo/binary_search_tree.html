@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二元搜尋樹 (Binary Search Tree)</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Mermaid CDN -->
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="container" style="padding-top: 0; padding-bottom: 0;">
+            <a href="../index.html">🏠 回首頁</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">二元搜尋樹 (Binary Search Tree)</h1>
+            <p>掌握動態資料結構的基石：深入探討左小右大的完美平衡機制與退化危機。</p>
+        </div>
+
+        <div class="detailed-content">
+            
+            <h2>一、 起｜生活化比喻 (概念引入)</h2>
+            <blockquote>
+                <strong>📖 翻字典找單字的智慧：</strong><br>
+                想像你正在一本厚厚的英文字典中尋找 "Monkey" 這個單字。如果你從第一頁 "Apple" 開始一頁一頁翻，那將會耗費無數時間（這叫線性搜尋）。聰明的人會直接從字典正中間翻開，假設中間是 "Lion"，因為 "M" 在 "L" 之後，你立刻就知道 "Monkey" 絕對在右半本，於是你毫不猶豫地捨棄了左半本。<strong>二元搜尋樹 (BST) 就是將這種「每次砍掉一半」的智慧，實作到電腦記憶體中的資料結構。</strong>
+            </blockquote>
+
+            <h2>二、 承｜教科書級文字詳解 (Why, What, How)</h2>
+            <p>首先來探討<strong>「為什麼 (Why)」</strong>我們需要二元搜尋樹？在基礎的資料結構中，陣列 (Array) 支援快速的索引查詢，但只要需要插入或刪除中間的資料，就必須大費周章地搬動後面所有的元素，效率極差。相對地，鏈結串列 (Linked List) 雖然能在一瞬間完成插入與刪除，但要找尋特定資料時，卻只能從頭開始一個個慢慢找。為了在「搜尋速度」與「增刪彈性」之間取得完美的平衡，計算機科學家結合了兩者的優點，創造出了樹狀結構，這就是 BST 誕生的背景。</p>
+            
+            <p>接著定義<strong>「是什麼 (What)」</strong>。二元搜尋樹是由多個節點 (Node) 組成的階層式架構。每個節點包含三個元素：資料本身 (Data)、指向左子節點的指標 (Left Pointer)，以及指向右子節點的指標 (Right Pointer)。要成為一棵合格的 BST，必須嚴格遵守一條鐵律：<strong>「對於樹上的任何一個節點，其左子樹內所有節點的值，必定小於該節點的值；而其右子樹內所有節點的值，必定大於該節點的值。」</strong>這條遞迴性質的規則，正是 BST 能夠快速縮小搜尋範圍的核心數學原理。</p>
+
+            <p>最後深入<strong>「如何運作 (How)」</strong>。以「插入新節點」為例，當我們要把數值 7 放入已存在根節點 10 的樹中，系統會拿 7 與 10 比較，因為 7 較小，便走向左子節點；若左邊已經有節點 5，再拿 7 與 5 比較，這次較大，便走向右子節點。這個過程會不斷重複，直到遇到「空位 (NULL)」，新節點便安插於此。至於「走訪 (Traversal)」，考研最愛考的就是 <strong>中序走訪 (Inorder Traversal)</strong>，它的順序是「左子樹 &rarr; 根節點 &rarr; 右子樹」，因為完美契合 BST 左小右大的天性，只要對 BST 進行中序走訪，必然會得到一組「由小到大完全排序」的輸出結果。</p>
+
+            <h2>三、 轉｜視覺化強制要求 (圖解與表格)</h2>
+            
+            <h3>二元搜尋樹結構與尋找路徑圖</h3>
+            <p>以下示範在一棵 BST 中，尋找數值 <code>13</code> 的比較路徑：</p>
+            <div class="mermaid">
+            graph TD
+                Root((10)) -->|13 > 10, 向右走| R1((15))
+                Root --> L1((5))
+                L1 --> L2((2))
+                L1 --> R2((7))
+                R1 -->|13 < 15, 向左走| L3((13))
+                R1 --> R3((20))
+                
+                style Root fill:#bfdbfe,stroke:#3b82f6,stroke-width:2px
+                style R1 fill:#bfdbfe,stroke:#3b82f6,stroke-width:2px
+                style L3 fill:#86efac,stroke:#22c55e,stroke-width:3px
+            </div>
+
+            <h3>BST 時間複雜度與退化危機比較表</h3>
+            <table class="styled-table">
+                <thead>
+                    <tr><th>操作項目</th><th>最佳/平均情況 (Balanced)</th><th>最差情況 (Skewed Tree)</th><th>學理原因與機制解析</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>搜尋 (Search)</strong></td>
+                        <td><strong>O(log n)</strong></td>
+                        <td><strong style="color: #c53030;">O(n)</strong></td>
+                        <td>最佳情況下，每次比較都能淘汰一半的節點。但若依序插入已排序好的數列 (如 1, 2, 3, 4)，樹會完全向單邊生長，退化成一條鏈結串列。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>插入 (Insert)</strong></td>
+                        <td><strong>O(log n)</strong></td>
+                        <td><strong style="color: #c53030;">O(n)</strong></td>
+                        <td>插入前必須先執行 Search 找到正確的空位(Leaf)，因此時間複雜度完全等同於搜尋操作。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>刪除 (Delete)</strong></td>
+                        <td><strong>O(log n)</strong></td>
+                        <td><strong style="color: #c53030;">O(n)</strong></td>
+                        <td>刪除最複雜。若刪除擁有兩個子節點的目標，必須尋找其「左子樹最大值」或「右子樹最小值」來替補，以維持 BST 性質。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>四、 合｜重點標示與提點</h2>
+            <p>在資管所考卷中，BST 的考題千變萬化。你必須牢記兩個絕對考點：第一，<strong>中序走訪 (Inorder Traversal) 必定是遞增排序</strong>，很多題目會利用這個隱藏條件，只給你前序(Preorder)，要你反推出整棵樹。第二，BST 的致命傷在於 <strong>歪斜樹 (Skewed Tree)</strong>，當插入順序不幸時，O(log n) 的神話會破滅退化為 O(n)。為了解決這個問題，學術界後續發展出了 AVL Tree 與 Red-Black Tree (紅黑樹) 來強制維持樹的平衡，這也是進階考題必考的對照重點。</p>
+        
+        </div>
+
+        <section class="exam-section">
+            <h2 class="section-title">📝 互動式考古題 (Exam Practice)</h2>
+            
+            <details>
+                <summary>🎯 [台大資管 109] 給定一組整數序列：`[50, 30, 20, 40, 70, 60, 80]`，依序插入一棵初始為空的二元搜尋樹。請詳細推導整棵樹的建構過程，並說明若對此樹進行中序走訪 (Inorder Traversal) 會得到什麼結果？</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. 逐步建構 BST：</strong><br>
+                    - 插入 50：樹為空，50 成為 Root (根節點)。<br>
+                    - 插入 30：與 Root(50) 比較，30 < 50，往左走，放置於 50 的左子節點。<br>
+                    - 插入 20：與 50 比較偏左，與 30 比較偏左，放置於 30 的左子節點。<br>
+                    - 插入 40：與 50 比較偏左，與 30 比較偏右，放置於 30 的右子節點。<br>
+                    - 插入 70：與 50 比較，70 > 50，往右走，放置於 50 的右子節點。<br>
+                    - 插入 60：與 50 偏右，與 70 比較 60 < 70，放置於 70 的左子節點。<br>
+                    - 插入 80：與 50 偏右，與 70 比較 80 > 70，放置於 70 的右子節點。<br><br>
+                    
+                    <strong>2. 樹狀結構確認：</strong><br>
+                    - 根節點：50<br>
+                    - 50 的左子樹：Root=30，左=20，右=40。<br>
+                    - 50 的右子樹：Root=70，左=60，右=80。<br>
+                    這是一棵高度平衡的 BST。<br><br>
+
+                    <strong>3. 中序走訪 (Inorder Traversal) 推導：</strong><br>
+                    中序的走訪口訣是「左子樹 &rarr; 節點自己 &rarr; 右子樹」。<br>
+                    對於根節點 50，先去徹底走訪它的左子樹。<br>
+                    來到 30，先徹底走訪其左子樹 (印出 20)，接著印出 30，再走訪其右子樹 (印出 40)。目前輸出：`20, 30, 40`<br>
+                    左子樹結束，回到根節點，印出 50。目前輸出：`20, 30, 40, 50`<br>
+                    接著走訪 50 的右子樹，對 70 做一樣的事，依序印出左(60)、中(70)、右(80)。<br>
+                    <strong>最終解答：</strong> <code>20, 30, 40, 50, 60, 70, 80</code> (完美遞增排列，驗證了 BST 的中序必定排序的定律)。
+                </div>
+            </details>
+            <details>
+                <summary>🎯 [政大資管 110] 說明二元搜尋樹在最差情況 (Worst Case) 下的時間複雜度為何退化為 O(n)？實務上應如何解決此問題？</summary>
+                <div class="answer">
+                    <strong>【詳細解題推導過程】</strong><br><br>
+                    <strong>1. 最差情況發生的原因推導：</strong><br>
+                    二元搜尋樹的 O(log n) 效能，建立在「每次比較都能將剩餘資料量減半」的前提下。這意味著樹必須相對「平衡」。<br>
+                    然而，如果我們插入的資料序列<strong>已經是事先排序好的</strong>（例如遞增數列：10, 20, 30, 40, 50），當我們依序將其安插進空的 BST 時：<br>
+                    - 10 成為 Root。<br>
+                    - 20 > 10，成為 10 的右子節點。<br>
+                    - 30 > 20，成為 20 的右子節點...依此類推。<br>
+                    最終這棵樹會完全沒有左子樹，變成一條一路向右生長的 <strong>歪斜樹 (Right-Skewed Tree)</strong>。此時的樹狀結構在邏輯上已經完全退化成一維的「鏈結串列 (Linked List)」。要搜尋 50，必須從頭歷經 5 次比較才能找到，時間複雜度正式崩壞為 O(n)。<br><br>
+                    
+                    <strong>2. 實務解決方案：</strong><br>
+                    為了解決標準 BST 隨插入順序退化的致命傷，實務上會改用語法與結構更嚴謹的 <strong>自我平衡二元搜尋樹 (Self-balancing Binary Search Tree)</strong>。<br>
+                    - <strong>AVL Tree</strong>：強制規定任何節點的左右子樹高度差絕對值不得大於 1，若違反則透過 LL, RR, LR, RL 旋轉 (Rotation) 來重新平衡。<br>
+                    - <strong>Red-Black Tree (紅黑樹)</strong>：透過節點塗色與較寬鬆的黑節點高度規則，以些微降低查詢效率為代價，換取比 AVL 樹更快的插入/刪除旋轉效能。現代作業系統的記憶體管理與 Java 的 TreeMap 底層皆採用紅黑樹。
+                </div>
+            </details>
+        
+        </section>
+    </div>
+</body>
+</html>
